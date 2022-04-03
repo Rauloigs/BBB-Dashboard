@@ -4,8 +4,8 @@ function init() {
 
   // Use the list of sample names to populate the select options
   d3.json("samples.json").then((data) => {
+    console.log(data);
     var sampleNames = data.names;
-
     sampleNames.forEach((sample) => {
       selector
         .append("option")
@@ -58,30 +58,64 @@ function buildCharts(sample) {
   // 2. Use d3.json to load and retrieve the samples.json file 
   d3.json("samples.json").then((data) => {
     // 3. Create a variable that holds the samples array. 
-
+    var samples = data.samples;
     // 4. Create a variable that filters the samples for the object with the desired sample number.
-
+    var resultArray = samples.filter(sampleObj => sampleObj.id == sample);
     //  5. Create a variable that holds the first sample in the array.
-
-
+    var result = resultArray[0];
     // 6. Create variables that hold the otu_ids, otu_labels, and sample_values.
-
+    var otu_ids = result.otu_ids;
+    console.log(otu_ids);
+    var otu_labels = result.otu_labels;
+    console.log(otu_labels);
+    var sample_values = result.sample_values;
+    console.log(sample_values);
 
     // 7. Create the yticks for the bar chart.
     // Hint: Get the the top 10 otu_ids and map them in descending order  
     //  so the otu_ids with the most bacteria are last. 
-
-    var yticks = 
+    // Chain the slice() method with the map() and reverse() functions to retrieve the top 10 otu_ids sorted in descending order.
+    var topten_values = sample_values.slice(0, 10);
+    console.log(topten_values);
+    var topten_ids = otu_ids.slice(0, 10);
+    console.log(topten_ids); 
+    // var sortedBacterias = .sort((a,b) => a.sample_values - b.sample_values).reverse().slice(0,10);
+    // console.log(sortedBacterias);
+    // var yticks = sortedBacterias.map(ids => ids.otu_ids);
+    // console.log(yticks);
+    
+    // var sortedCities = cityGrowths.sort((a,b) => a.population - b.population).reverse();
+    // var topSevenCities = sortedCities.slice(0,7);
+    // var topSevenCityNames city = topSevenCities.map(city => city.City);
+    // var topSevenCityGrowths population = topSevenCities.map(city => parseInt(city.population));
 
     // 8. Create the trace for the bar chart. 
-    var barData = [
-      
-    ];
+    var barData = [{
+      x: topten_values,
+      y: topten_ids,
+      type: "bar"
+    }];
     // 9. Create the layout for the bar chart. 
     var barLayout = {
-     
+     title: "Top 10 Bacterias", 
+     xaxis: {title: "Number of Bacterias"},
+     yaxis: {title: "Bacteria ID"}
     };
     // 10. Use Plotly to plot the data with the layout. 
-    
+    Plotly.newPlot("bar-plot", barData, barLayout);
   });
 }
+
+// var trace = {
+//   x: topSevenCityNames,
+//   y: topSevenCityGrowths,
+//   type: "bar"
+// };
+
+// var data = [trace];
+// var layout = {
+//   title: "Largest Population Cities",
+//   xaxis: {title: "City"},
+//   yaxis: {title: "Population"}
+// };
+// Plotly.newPlot("bar-plot", data, layout);
