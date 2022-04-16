@@ -65,35 +65,30 @@ function buildCharts(sample) {
     var result = resultArray[0];
     // 6. Create variables that hold the otu_ids, otu_labels, and sample_values.
     var otu_ids = result.otu_ids;
-    console.log(otu_ids);
     var otu_labels = result.otu_labels;
-    console.log(otu_labels);
     var sample_values = result.sample_values;
-    console.log(sample_values);
+    
+
+    // Create variables for the gauge. 
+    var metadata = data.metadata;
+    var resultArray = metadata.filter(sampleObj => sampleObj.id == sample);
+    var result = resultArray[0];
+    var wfreq = parseFloat(result.wfreq);
+   
 
     // 7. Create the yticks for the bar chart.
-    // Hint: Get the the top 10 otu_ids and map them in descending order  
-    //  so the otu_ids with the most bacteria are last. 
+    // Hint: Get the the top 10 otu_ids and map them in descending order so the otu_ids with the most bacteria are last. 
     // Chain the slice() method with the map() and reverse() functions to retrieve the top 10 otu_ids sorted in descending order.
-    var topten_values = sample_values.slice(0, 10);
-    console.log(topten_values);
-    var topten_ids = otu_ids.slice(0, 10);
-    console.log(topten_ids); 
-    // var sortedBacterias = .sort((a,b) => a.sample_values - b.sample_values).reverse().slice(0,10);
-    // console.log(sortedBacterias);
-    // var yticks = sortedBacterias.map(ids => ids.otu_ids);
-    // console.log(yticks);
     
-    // var sortedCities = cityGrowths.sort((a,b) => a.population - b.population).reverse();
-    // var topSevenCities = sortedCities.slice(0,7);
-    // var topSevenCityNames city = topSevenCities.map(city => city.City);
-    // var topSevenCityGrowths population = topSevenCities.map(city => parseInt(city.population));
-
+    var topten_values = otu_ids.slice(0, 10).map(otuID => `OTU ${otuID}`).reverse();
+    
     // 8. Create the trace for the bar chart. 
     var barData = [{
-      x: topten_values,
-      y: topten_ids,
-      type: "bar"
+      y: topten_values,
+      x: sample_values.slice(0, 10).reverse(),
+      text: otu_labels.slice(0, 10).reverse(),
+      type: "bar",
+      orientation: "h",
     }];
     // 9. Create the layout for the bar chart. 
     var barLayout = {
@@ -103,19 +98,63 @@ function buildCharts(sample) {
     };
     // 10. Use Plotly to plot the data with the layout. 
     Plotly.newPlot("bar-plot", barData, barLayout);
+    
+    // 1. Create the trace for the bubble chart.
+    var bubbleData = {
+      x: otu_ids,
+      y: sample_values,
+      text: otu_labels,
+      mode: 'markers',
+      marker: {
+        color: otu_ids,
+        colorscale: 'Jet',
+        size: sample_values
+      }
+    };
+
+    var data = [bubbleData];
+
+    // 2. Create the layout for the bubble chart.
+    var bubbleLayout = {
+      title: "Bacteria Cultures per Sample",
+      xaxis: {title: "OTU ID"}
+      // showlegend: false,
+      // height: 600,
+      // width: 600
+    };
+
+    // 3. Use Plotly to plot the data with the layout.
+    Plotly.newPlot("bubble", data, bubbleLayout); 
+
+    // Create the trace for the gauge chart.
+    var gaugeData = [{
+      value: wfreq,
+      title:{ text: "<b>Belly Button Washing Frequency</b> <br> Scrubs per Week"},
+      type: "indicator",
+      mode: "gauge+number",
+      gauge: {
+        axis: {range: [null, 10]},
+        bar: {color: "black"},
+        steps: [
+          {range: [0, 2], color: "red"},
+          {range: [2, 4], color: "orange"},
+          {range: [4, 6], color: "yellow"},
+          {range: [6, 8], color: "lightgreen"},
+          {range: [8, 10], color: "darkgreen"}
+        ]
+      }
+
+    }];
+    
+    // Create the layout for the gauge chart.
+    var gaugeLayout = { 
+     width: 500,
+     height: 400,
+     // font: {color: "black", family: "Arial"}
+    };
+
+    // Use Plotly to plot the gauge data and layout.
+    Plotly.newPlot(gauge,gaugeData, gaugeLayout);
+
   });
 }
-
-// var trace = {
-//   x: topSevenCityNames,
-//   y: topSevenCityGrowths,
-//   type: "bar"
-// };
-
-// var data = [trace];
-// var layout = {
-//   title: "Largest Population Cities",
-//   xaxis: {title: "City"},
-//   yaxis: {title: "Population"}
-// };
-// Plotly.newPlot("bar-plot", data, layout);
